@@ -1,0 +1,47 @@
+package com.example.fuzzy;
+import java.util.Map;
+
+public class TwoXTwoTable {
+
+//constructing FLRS table for two inputs and two outputs
+
+    Map<FuzzyValue, Map<FuzzyValue, FuzzyValue>> firstTable;
+    Map<FuzzyValue, Map<FuzzyValue, FuzzyValue>> secondTable;
+
+    public TwoXTwoTable(Map<FuzzyValue, Map<FuzzyValue, FuzzyValue>>
+                                firstTable,
+                        Map<FuzzyValue, Map<FuzzyValue, FuzzyValue>> secondTable) {
+        this.firstTable = firstTable;
+        this.secondTable = secondTable;
+    }
+
+//implementing the FLRS table execution
+
+    public FuzzyToken[] execute(FuzzyToken firstToken, FuzzyToken
+            secondToken) {
+        if (firstTable == null || secondTable == null) {
+            throw new RuntimeException("Tables not setted");
+        }
+        FuzzyToken toRet1 = new FuzzyToken(0.0, 0.0, 0.0, 0.0, 0.0);
+        FuzzyToken toRet2 = new FuzzyToken(0.0, 0.0, 0.0, 0.0, 0.0);
+
+        for (FuzzyValue firstTokenNonZero :
+                firstToken.getNonZeroValues()) {
+            for (FuzzyValue secondNonZero :
+                    secondToken.getNonZeroValues()) {
+                FuzzyValue firstConclusion = firstTable.get(firstTokenNonZero).get(secondNonZero);
+                FuzzyValue secondConclusion = secondTable.get(firstTokenNonZero).get(secondNonZero);
+
+                double valueOfConclusion =
+                        firstToken.getFuzzyValue(firstTokenNonZero) *
+                                secondToken.getFuzzyValue(secondNonZero);
+                toRet1.addToFuzzyValue(firstConclusion, valueOfConclusion);
+                toRet2.addToFuzzyValue(secondConclusion, valueOfConclusion);
+            }
+        }
+        toRet1.normalize();
+        toRet2.normalize();
+
+        return new FuzzyToken[]{toRet1, toRet2};
+    }
+}
